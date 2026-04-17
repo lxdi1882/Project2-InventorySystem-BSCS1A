@@ -10,4 +10,5 @@
         <maven.compiler.release>25</maven.compiler.release>
         <exec.mainClass>com.mycompany.java.inventory.management.system.JavaInventoryManagementSystem</exec.mainClass>
     </properties>
+    <name>Project2InventorySystemBSCS1A</name>
 </project>
