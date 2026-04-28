@@ -13,7 +13,7 @@ import java.sql.DriverManager;
 
 public class DatabaseConnect {
 
-    private static final String URL  = "jdbc:mysql://localhost:3306/db_company";
+    private static final String URL  = "jdbc:mysql://localhost:3306/inventory_db";
     private static final String USER = "root";
     private static final String PASS = "";
 

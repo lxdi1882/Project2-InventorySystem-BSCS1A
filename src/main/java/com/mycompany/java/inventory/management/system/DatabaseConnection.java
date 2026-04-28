@@ -16,7 +16,7 @@ import java.sql.Statement;
 public class DatabaseConnection {
 
     // Connection settings
-    static final String DB_URL  = "jdbc:mysql://localhost:3306/db_company";
+    static final String DB_URL  = "jdbc:mysql://localhost:3306/inventory_db";
     static final String USER    = "root";
     static final String PASS    = "";  // XAMPP default is empty
 
@@ -35,24 +35,29 @@ public class DatabaseConnection {
 
             // 3. Execute a query
             stmt = conn.createStatement();
-            String sql = "SELECT * FROM tbl_employee";
+            String sql = "SELECT * FROM products";
             ResultSet rs = stmt.executeQuery(sql);
 
             // 4. Process the result set
             while (rs.next()) {
                 // Replace 'id' and 'name' with your actual column names
-                 int id          = rs.getInt("employee_id");
-    String name     = rs.getString("employee_name");
-    String position = rs.getString("employee_position");
-    double salary   = rs.getDouble("employee_salary");
-    int deptId      = rs.getInt("dept_id");
+    int id          = rs.getInt("product_id");
+    String name     = rs.getString("product_name");
+    int categoryID = rs.getInt("category_id");
+    String unit   = rs.getString("unit");
+    int unitPrice   = rs.getInt("unit_price");
+    int stockQuantity   = rs.getInt("stock_quantity");
+    int lowStock   = rs.getInt("low_stock_threshold");
 
                 
-                System.out.println("ID: " + id + 
-                       " | Name: " + name + 
-                       " | Position: " + position + 
-                       " | Salary: " + salary + 
-                       " | Dept: " + deptId);
+                System.out.println("product ID: " + id + 
+                       " | product Name: " + name + 
+                       " | category id: " + categoryID + 
+                       " | unit: " + unit + 
+                       " | unit price: " + unitPrice +
+                       " | stock quantity: " + stockQuantity +
+                       " | low stock threshold: " + lowStock);        
+                
             }
 
             // 5. Clean up
