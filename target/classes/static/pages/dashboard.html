@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — Inventory System</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- Top bar -->
+      <header class="topbar">
+        <h1>Dashboard</h1>
+        <div class="topbar-user">
+          Logged in as <span id="topbar-name"></span>
+        </div>
+      </header>
+
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="cat"><i class="fa-solid fa-cat"></i></div>
+        <div class="topbar-brand">invsys</div>
+        <div class="system-name">Inventory Management System</div>
+        <a href="/pages/dashboard.html" data-page="dashboard">
+          <span class="icon"><i class="fa-solid fa-chart-column"></i></span>
+          Dashboard
+        </a>
+        <a href="/pages/products.html" data-page="products">
+          <span class="icon"><i class="fa-solid fa-basket-shopping"></i></span>
+          Products
+        </a>
+        <a href="/pages/categories.html" data-page="categories">
+          <span class="icon"><i class="fa-solid fa-list"></i></span> Categories
+        </a>
+        <a href="/pages/stock.html" data-page="stock">
+          <span class="icon"><i class="fa-solid fa-boxes-stacked"></i></span>
+          Stock
+        </a>
+        <a href="/pages/lowstock.html" data-page="lowstock">
+          <span class="icon"
+            ><i class="fa-solid fa-triangle-exclamation"></i
+          ></span>
+          Low Stock
+        </a>
+        <div class="sidebar-spacer"></div>
+        <button class="logout-btn" id="logout-btn">
+          <span class="icon"
+            ><i class="fa-solid fa-right-from-bracket"></i
+          ></span>
+          Logout
+        </button>
+      </nav>
+
+      <!-- Main -->
+      <main class="main-content">
+        <div class="page-header">
+          <div>
+            <div class="page-subtitle" id="welcome-msg">Welcome back!</div>
+          </div>
+          <button class="btn btn-ghost" onclick="loadStats()">
+            <i class="fa-solid fa-arrow-rotate-right"></i> Refresh
+          </button>
+        </div>
+
+        <!-- Overview box -->
+        <div class="overview">
+          <h2 class="overview-title">Overview</h2>
+          <div class="stat-grid">
+            <div class="stat-card stat-card-products">
+              <i class="fa-solid fa-basket-shopping stat-icon"></i>
+              <div class="stat-value" id="stat-products">—</div>
+              <div class="stat-label">Total Products</div>
+            </div>
+            <div class="stat-card stat-card-items">
+              <i class="fa-solid fa-boxes-stacked stat-icon"></i>
+              <div class="stat-value" id="stat-items">—</div>
+              <div class="stat-label">Items in Stock</div>
+            </div>
+            <div class="stat-card stat-card-value">
+              <i class="fa-solid fa-peso-sign stat-icon"></i>
+              <div class="stat-value" id="stat-value">—</div>
+              <div class="stat-label">Inventory Value</div>
+            </div>
+            <div class="stat-card warn" id="card-lowstock">
+              <i class="fa-solid fa-triangle-exclamation stat-icon"></i>
+              <div class="stat-value" id="stat-low">—</div>
+              <div class="stat-label">Low / Out of Stock</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick nav buttons -->
+        <div class="quick-actions">
+          <h2 class="quick-title">Quick Actions</h2>
+            <div class="actions-grid">
+              <a href="/pages/products.html"   class="btn btn-ghost"><i class="fa-solid fa-boxes-packing"></i> Manage Products</a>
+              <a href="/pages/categories.html" class="btn btn-ghost"><i class="fa-solid fa-folder-tree"></i> Manage Categories</a>
+              <a href="/pages/stock.html"      class="btn btn-ghost"><i class="fa-solid fa-arrow-right-arrow-left"></i> Restock / Deduct</a>
+              <a href="/pages/lowstock.html"   class="btn btn-warn"><i class="fa-solid fa-triangle-exclamation"></i> View Low Stock</a>
+            </div>
+            </div>
+        </div>
+        
+      </main>
+    </div>
+  </body>
+</html>
