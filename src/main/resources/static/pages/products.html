@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Products — Inventory System</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- Top bar -->
+      <header class="topbar">
+        <h1>Products</h1>
+        <div class="topbar-user">
+          Logged in as <span id="topbar-name"></span>
+        </div>
+      </header>
+
+      <!-- Sidebar -->
+      <nav class="sidebar">
+        <div class="cat"><i class="fa-solid fa-cat"></i></div>
+        <div class="topbar-brand">invsys</div>
+        <div class="system-name">Inventory Management System</div>
+        <a href="dashboard.html" data-page="dashboard">
+          <span class="icon"><i class="fa-solid fa-chart-column"></i></span>
+          Dashboard
+        </a>
+        <a href="products.html" data-page="products">
+          <span class="icon"><i class="fa-solid fa-basket-shopping"></i></span>
+          Products
+        </a>
+        <a href="categories.html" data-page="categories">
+          <span class="icon"><i class="fa-solid fa-list"></i></span> Categories
+        </a>
+        <a href="stock.html" data-page="stock">
+          <span class="icon"><i class="fa-solid fa-boxes-stacked"></i></span>
+          Stock
+        </a>
+        <a href="/lowstock.html" data-page="lowstock">
+          <span class="icon"
+            ><i class="fa-solid fa-triangle-exclamation"></i
+          ></span>
+          Low Stock
+        </a>
+        <div class="sidebar-spacer"></div>
+        <button class="logout-btn" id="logout-btn">
+          <span class="icon"
+            ><i class="fa-solid fa-right-from-bracket"></i
+          ></span>
+          Logout
+        </button>
+      </nav>
+
+      <!-- Main -->
+      <main class="main-content">
+        <div class="page-header">
+          <div>
+            <div class="page-subtitle">
+              Manage products — add, edit, or update stock.
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="openAddModal()">
+            + Add Product
+          </button>
+        </div>
+
+        <div class="toolbar">
+          <input
+            type="text"
+            id="search"
+            placeholder="Search products…"
+            oninput="renderTable()"
+          />
+          <select id="filter-cat" onchange="renderTable()" style="width: auto">
+            <option value="">All Categories</option>
+          </select>
+          <select
+            id="filter-status"
+            onchange="renderTable()"
+            style="width: auto"
+          >
+            <option value="">All Status</option>
+            <option value="In Stock">In Stock</option>
+            <option value="Low Stock">Low Stock</option>
+            <option value="Out of Stock">Out of Stock</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Unit</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Threshold</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="prod-tbody">
+              <tr>
+                <td
+                  colspan="8"
+                  class="text-dim"
+                  style="text-align: center; padding: 32px"
+                >
+                  Loading…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <!-- Add / Edit Modal -->
+    <div class="modal-overlay" id="prod-modal">
+      <div class="modal" style="max-width: 540px">
+        <div class="modal-header">
+          <h2 class="modal-title" id="modal-title">Add Product</h2>
+          <button class="modal-close" onclick="closeModal('prod-modal')">
+            &#x2715;
+          </button>
+        </div>
+        <input type="hidden" id="edit-id" />
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px">
+          <div class="form-group" style="grid-column: 1/-1">
+            <label for="prod-name">Product Name *</label>
+            <input
+              type="text"
+              id="prod-name"
+              placeholder="e.g. Mineral Water 500ml"
+            />
+          </div>
+          <div class="form-group">
+            <label for="prod-cat">Category *</label>
+            <select id="prod-cat">
+              <option value="">Select…</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="prod-unit">Unit *</label>
+            <input type="text" id="prod-unit" placeholder="pcs, kg, bottles…" />
+          </div>
+          <div class="form-group">
+            <label for="prod-price">Unit Price (₱) *</label>
+            <input
+              type="number"
+              id="prod-price"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="form-group">
+            <label for="prod-qty">Initial Stock Qty *</label>
+            <input
+              type="number"
+              id="prod-qty"
+              min="0"
+              placeholder="0"
+              id="prod-qty-field"
+            />
+          </div>
+          <div class="form-group" style="grid-column: 1/-1">
+            <label for="prod-thresh">Low Stock Threshold *</label>
+            <input
+              type="number"
+              id="prod-thresh"
+              min="1"
+              placeholder="e.g. 10"
+            />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeModal('prod-modal')">
+            Cancel
+          </button>
+          <button class="btn btn-primary" id="save-btn" onclick="saveProduct()">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- javascript / toast -->
+
+    <script src="/js/app.js"></script>
+    <script>
+      initShell("products");
+
+      let products = [];
+      let categories = [];
+
+      async function loadData() {
+        try {
+          [products, categories] = await Promise.all([
+            api("/products"),
+            api("/categories"),
+          ]);
+          populateCategoryFilters();
+          renderTable();
+        } catch (err) {
+          toast("Failed to load data: " + err.message, "error");
+        }
+      }
+
+      function populateCategoryFilters() {
+        const filterSel = document.getElementById("filter-cat");
+        const modalSel = document.getElementById("prod-cat");
+
+        const opts = categories
+          .map(
+            (c) =>
+              `<option value="${c.category_id}">${c.category_name}</option>`,
+          )
+          .join("");
+
+        filterSel.innerHTML = '<option value="">All Categories</option>' + opts;
+        modalSel.innerHTML = '<option value="">Select…</option>' + opts;
+      }
+
+      function renderTable() {
+        const q = document.getElementById("search").value.toLowerCase();
+        const catId = document.getElementById("filter-cat").value;
+        const status = document.getElementById("filter-status").value;
+        const tbody = document.getElementById("prod-tbody");
+
+        const filtered = products.filter(
+          (p) =>
+            (!q ||
+              p.product_name.toLowerCase().includes(q) ||
+              p.category_name.toLowerCase().includes(q)) &&
+            (!catId || String(p.category_id) === catId) &&
+            (!status || p.status === status),
+        );
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+        <div class="empty-state-icon">&#9723;</div>
+        <h3>No products found</h3>
+        <p class="text-dim">Add a product or adjust your filters.</p>
+      </div></td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered
+          .map(
+            (p) => `
+      <tr>
+        <td><strong>${p.product_name}</strong></td>
+        <td class="text-dim">${p.category_name}</td>
+        <td class="text-dim">${p.unit}</td>
+        <td class="mono">${peso(p.unit_price)}</td>
+        <td class="mono ${p.stock_quantity === 0 ? "text-danger" : p.stock_quantity <= p.low_stock_threshold ? "text-warn" : ""}">${p.stock_quantity}</td>
+        <td class="mono text-dim">${p.low_stock_threshold}</td>
+        <td>${statusBadge(p.status)}</td>
+        <td>
+          <div class="actions-cell">
+            <button class="btn btn-ghost btn-sm" onclick="openEditModal(${p.product_id})">Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.product_id}, '${p.product_name.replace(/'/g, "\\'")}')">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `,
+          )
+          .join("");
+      }
+
+      function openAddModal() {
+        document.getElementById("modal-title").textContent = "Add Product";
+        document.getElementById("edit-id").value = "";
+        [
+          "prod-name",
+          "prod-unit",
+          "prod-price",
+          "prod-qty",
+          "prod-thresh",
+        ].forEach((id) => {
+          document.getElementById(id).value = "";
+        });
+        document.getElementById("prod-cat").value = "";
+
+        // Show qty field for new products
+        document
+          .getElementById("prod-qty")
+          .closest(".form-group").style.display = "";
+        openModal("prod-modal");
+      }
+
+      function openEditModal(id) {
+        const p = products.find((x) => x.product_id === id);
+        if (!p) return;
+        document.getElementById("modal-title").textContent = "Edit Product";
+        document.getElementById("edit-id").value = id;
+        document.getElementById("prod-name").value = p.product_name;
+        document.getElementById("prod-cat").value = p.category_id;
+        document.getElementById("prod-unit").value = p.unit;
+        document.getElementById("prod-price").value = p.unit_price;
+        document.getElementById("prod-thresh").value = p.low_stock_threshold;
+
+        // Hide qty for edits (use stock page for stock changes)
+        document
+          .getElementById("prod-qty")
+          .closest(".form-group").style.display = "none";
+        openModal("prod-modal");
+      }
+
+      async function saveProduct() {
+        const id = document.getElementById("edit-id").value;
+        const name = document.getElementById("prod-name").value.trim();
+        const catId = parseInt(document.getElementById("prod-cat").value);
+        const unit = document.getElementById("prod-unit").value.trim();
+        const price = parseFloat(document.getElementById("prod-price").value);
+        const qty = parseInt(document.getElementById("prod-qty").value) || 0;
+        const thresh = parseInt(document.getElementById("prod-thresh").value);
+
+        if (!name || !catId || !unit || isNaN(price) || isNaN(thresh)) {
+          toast("Please fill in all required fields.", "error");
+          return;
+        }
+        if (price <= 0) {
+          toast("Unit price must be positive.", "error");
+          return;
+        }
+        if (thresh <= 0) {
+          toast("Threshold must be at least 1.", "error");
+          return;
+        }
+
+        const btn = document.getElementById("save-btn");
+        btn.disabled = true;
+
+        try {
+          const body = JSON.stringify({
+            product_name: name,
+            category_id: catId,
+            unit,
+            unit_price: price,
+            stock_quantity: qty,
+            low_stock_threshold: thresh,
+          });
+          if (id) {
+            await api(`/products?id=${id}`, { method: "PUT", body });
+            toast("Product updated.");
+          } else {
+            await api("/products", { method: "POST", body });
+            toast("Product created.");
+          }
+          closeModal("prod-modal");
+          loadData();
+        } catch (err) {
+          toast(err.message, "error");
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      async function deleteProduct(id, name) {
+        if (!confirm(`Delete product "${name}"? This cannot be undone.`))
+          return;
+        try {
+          await api(`/products?id=${id}`, { method: "DELETE" });
+          toast("Product deleted.");
+          loadData();
+        } catch (err) {
+          toast(err.message, "error");
+        }
+      }
+
+      loadData();
+    </script>
+  </body>
+</html>
