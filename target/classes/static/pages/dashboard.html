@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard — Inventory System</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -25,22 +25,22 @@
         <div class="cat"><i class="fa-solid fa-cat"></i></div>
         <div class="topbar-brand">invsys</div>
         <div class="system-name">Inventory Management System</div>
-        <a href="/pages/dashboard.html" data-page="dashboard">
+        <a href="dashboard.html" data-page="dashboard">
           <span class="icon"><i class="fa-solid fa-chart-column"></i></span>
           Dashboard
         </a>
-        <a href="/pages/products.html" data-page="products">
+        <a href="products.html" data-page="products">
           <span class="icon"><i class="fa-solid fa-basket-shopping"></i></span>
           Products
         </a>
-        <a href="/pages/categories.html" data-page="categories">
+        <a href="categories.html" data-page="categories">
           <span class="icon"><i class="fa-solid fa-list"></i></span> Categories
         </a>
-        <a href="/pages/stock.html" data-page="stock">
+        <a href="stock.html" data-page="stock">
           <span class="icon"><i class="fa-solid fa-boxes-stacked"></i></span>
           Stock
         </a>
-        <a href="/pages/lowstock.html" data-page="lowstock">
+        <a href="lowstock.html" data-page="lowstock">
           <span class="icon"
             ><i class="fa-solid fa-triangle-exclamation"></i
           ></span>
@@ -58,17 +58,18 @@
       <!-- Main -->
       <main class="main-content">
         <div class="page-header">
-          <div>
-            <div class="page-subtitle" id="welcome-msg">Welcome back!</div>
-          </div>
+          <div class="welcome"> <h2 id="welcome-msg">Welcome back!</h2></div>
           <button class="btn btn-ghost" onclick="loadStats()">
             <i class="fa-solid fa-arrow-rotate-right"></i> Refresh
           </button>
         </div>
-
+        
         <!-- Overview box -->
         <div class="overview">
           <h2 class="overview-title">Overview</h2>
+          <div class="page-subtitle">
+            Quick snapshot of your inventory.
+          </div>
           <div class="stat-grid">
             <div class="stat-card stat-card-products">
               <i class="fa-solid fa-basket-shopping stat-icon"></i>
@@ -106,6 +107,37 @@
         </div>
         
       </main>
+
+      
+<script src="/js/app.js"></script>
+<script>
+  initShell('dashboard');
+
+  const user = Session.get();
+  if (user) {
+    document.getElementById('welcome-msg').textContent =
+      `Welcome back, ${user.full_name}!`;
+  }
+
+  async function loadStats() {
+    try {
+      const s = await api('/dashboard');
+      document.getElementById('stat-products').textContent = s.total_products;
+      document.getElementById('stat-items').textContent    = s.total_items.toLocaleString();
+      document.getElementById('stat-value').textContent    = peso(s.total_value);
+      document.getElementById('stat-low').textContent      = s.low_stock_count;
+
+      // Turn the low-stock card danger if any items are critical
+      const card = document.getElementById('card-lowstock');
+      card.className = 'stat-card ' + (s.low_stock_count > 0 ? 'danger' : '');
+    } catch (err) {
+      toast('Could not load stats: ' + err.message, 'error');
+    }
+  }
+
+  loadStats();
+</script>
+      
     </div>
   </body>
 </html>

@@ -1,0 +1,10 @@
+com\inventory\db\DatabaseConnection.class
+com\inventory\handler\DashboardHandler.class
+com\inventory\handler\ProductHandler.class
+com\inventory\Main.class
+com\inventory\handler\StockHandler.class
+com\inventory\handler\AuthHandler.class
+com\inventory\handler\CategoryHandler.class
+com\inventory\handler\StaticFileHandler.class
+com\inventory\util\PasswordUtil.class
+com\inventory\util\HttpUtil.class

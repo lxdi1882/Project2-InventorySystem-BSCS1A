@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Inventory System</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">INVSYS</div>
+    <div class="login-sub">Inventory Management System</div>
+
+    <div class="login-error" id="login-error"></div>
+
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="Enter username" autocomplete="username" />
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" />
+    </div>
+
+    <button class="btn btn-primary" id="login-btn" style="width:100%;justify-content:center;margin-top:8px;">
+      Sign In
+    </button>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  // If already logged in, go to dashboard
+  if (Session.get()) window.location.href = '/pages/dashboard.html';
+
+  const errEl  = document.getElementById('login-error');
+  const btn    = document.getElementById('login-btn');
+
+  async function doLogin() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    errEl.style.display = 'none';
+
+    if (!username || !password) {
+      errEl.textContent = 'Please enter both username and password.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    btn.textContent = 'Signing in…';
+    btn.disabled = true;
+
+    try {
+      const user = await api('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+      });
+      Session.set(user);
+      window.location.href = '/pages/dashboard.html';
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
+    }
+  }
+
+  btn.addEventListener('click', doLogin);
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>

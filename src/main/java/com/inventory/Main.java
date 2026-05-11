@@ -20,27 +20,26 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
-        
+          //API routes
         server.createContext("/api/auth",      new AuthHandler());
         server.createContext("/api/categories",new CategoryHandler());
-        server.createContext("/api/products",  new ProductHandler());
-        server.createContext("/api/stock",     new StockHandler());
-        server.createContext("/api/dashboard", new DashboardHandler());
+        //server.createContext("/api/products",  new ProductHandler());
+        //server.createContext("/api/stock",     new StockHandler());
+        //server.createContext("/api/dashboard", new DashboardHandler());
 
-        
-        server.createContext("/", new StaticFileHandler());
+        //Static frontend (HTML/CSS/JS)
+       server.createContext("/", new StaticFileHandler());
 
-        
+        //thread pool
         server.setExecutor(Executors.newFixedThreadPool(4));
         server.start();
 
-        System.out.println("=================================================");
+        System.out.println("---------------------------------------------------------");
         System.out.println("  Inventory System running at http://localhost:" + PORT);
         System.out.println("  Open your browser and go to that address.");
         System.out.println("  Press Ctrl+C to stop the server.");
-        System.out.println("=================================================");
+        System.out.println("---------------------------------------------------------");
         
         
     }
-}
 }

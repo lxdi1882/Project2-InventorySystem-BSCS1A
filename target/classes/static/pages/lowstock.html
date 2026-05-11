@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Low Stock — Inventory System</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Top bar -->
+  <header class="topbar">
+      <h1>Low Stock</h1>
+    <div class="topbar-user">Logged in as <span id="topbar-name"></span></div>
+  </header>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+      <div class="cat"><i class="fa-solid fa-cat"></i></div>
+      <div class="topbar-brand">invsys</div>
+      <div class="system-name">Inventory Management System</div>
+    <a href="/pages/dashboard.html"  data-page="dashboard">  <span class="icon"><i class="fa-solid fa-chart-column"></i></span> Dashboard  </a>
+    <a href="/pages/products.html"   data-page="products">   <span class="icon"><i class="fa-solid fa-basket-shopping"></i></span> Products   </a>
+    <a href="/pages/categories.html" data-page="categories"> <span class="icon"><i class="fa-solid fa-list"></i></span> Categories </a>
+    <a href="/pages/stock.html"      data-page="stock">      <span class="icon"><i class="fa-solid fa-boxes-stacked"></i></span> Stock      </a>
+    <a href="/pages/lowstock.html"   data-page="lowstock">   <span class="icon"><i class="fa-solid fa-triangle-exclamation"></i></span> Low Stock  </a>
+    <div class="sidebar-spacer"></div>
+    <button class="logout-btn" id="logout-btn"><span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span> Logout</button>
+  </nav>
+
+    <!-- Summary -->
+    <div class="stat-grid" style="grid-template-columns:repeat(2,1fr);max-width:480px;margin-bottom:28px">
+      <div class="stat-card warn">
+        <div class="stat-label">Low Stock</div>
+        <div class="stat-value" id="count-low">—</div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-label">Out of Stock</div>
+        <div class="stat-value" id="count-out">—</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Unit</th>
+            <th>Current Stock</th>
+            <th>Threshold</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="low-tbody">
+          <tr><td colspan="6" class="text-dim" style="text-align:center;padding:32px">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+  initShell('lowstock');
+
+  async function load() {
+    try {
+      const products = await api('/products?low=true');
+      const lowCount = products.filter(p => p.status === 'Low Stock').length;
+      const outCount = products.filter(p => p.status === 'Out of Stock').length;
+
+      document.getElementById('count-low').textContent = lowCount;
+      document.getElementById('count-out').textContent = outCount;
+
+      const tbody = document.getElementById('low-tbody');
+
+      if (products.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+          <div class="empty-state-icon">&#9989;</div>
+          <h3>All stocked up!</h3>
+          <p class="text-dim">No products are currently low or out of stock.</p>
+        </div></td></tr>`;
+        return;
+      }
+
+      // Sort: Out of Stock first, then Low Stock
+      products.sort((a, b) => {
+        const order = { 'Out of Stock': 0, 'Low Stock': 1 };
+        return order[a.status] - order[b.status];
+      });
+
+      tbody.innerHTML = products.map(p => `
+        <tr>
+          <td><strong>${p.product_name}</strong></td>
+          <td class="text-dim">${p.category_name}</td>
+          <td class="text-dim">${p.unit}</td>
+          <td class="mono ${p.stock_quantity === 0 ? 'text-danger' : 'text-warn'}">${p.stock_quantity}</td>
+          <td class="mono text-dim">${p.low_stock_threshold}</td>
+          <td>${statusBadge(p.status)}</td>
+        </tr>
+      `).join('');
+
+    } catch (err) {
+      toast('Failed to load: ' + err.message, 'error');
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
