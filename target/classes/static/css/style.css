@@ -239,6 +239,7 @@ h2 {
   column-gap: 28px;
   margin-bottom: 32px;
   margin-top: 16px;
+  max-width: 100%;
 }
 
 .stat-card-products {
@@ -295,6 +296,31 @@ h2 {
   font-size: 1.5rem;
   color: #ff947a;
   margin-bottom: 10px;
+}
+
+.stat-card.danger {
+  background: #ffe2e2;
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card.danger .stat-icon {
+  font-size: 1.5rem;
+  color: #ff5a5a; /* red accent */
+  margin-bottom: 10px;
+}
+
+.stat-card.danger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--danger); 
 }
 
 .stat-card::before {

@@ -59,10 +59,7 @@
       <main class="main-content">
         <div class="page-header">
           <div>
-            <h1>Stock Management</h1>
-            <div class="page-subtitle">
-              Monitor stock flow and restocking.
-            </div>
+            <div class="page-subtitle">Monitor stock flow and restocking.</div>
           </div>
         </div>
 
@@ -85,7 +82,7 @@
             "
           >
             <h2 style="margin-bottom: 4px; color: var(--accent)">
-              &#8679; Restock
+              <i class="fa-solid fa-arrow-up"></i> Restock
             </h2>
             <p class="text-dim" style="font-size: 0.85rem; margin-bottom: 24px">
               Add stock to a product
@@ -124,7 +121,7 @@
               style="width: 100%; justify-content: center"
               onclick="doRestock()"
             >
-              &#8679; Add Stock
+              <i class="fa-solid fa-plus"></i> Add Stock
             </button>
           </div>
 
@@ -138,7 +135,7 @@
             "
           >
             <h2 style="margin-bottom: 4px; color: var(--warn)">
-              &#8681; Deduct Stock
+              <i class="fa-solid fa-arrow-down"></i> Deduct Stock
             </h2>
             <p class="text-dim" style="font-size: 0.85rem; margin-bottom: 24px">
               Record a sale or usage
@@ -177,7 +174,7 @@
               style="width: 100%; justify-content: center"
               onclick="doDeduct()"
             >
-              &#8681; Deduct Stock
+              <i class="fa-solid fa-minus"></i> Deduct Stock
             </button>
           </div>
         </div>
@@ -186,7 +183,7 @@
         <div class="page-header" style="margin-bottom: 16px">
           <h2>Current Inventory</h2>
           <button class="btn btn-ghost" onclick="loadProducts()">
-            &#8635; Refresh
+            <i class="fa-solid fa-arrow-rotate-right"></i> Refresh
           </button>
         </div>
 

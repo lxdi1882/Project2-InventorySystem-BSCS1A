@@ -23,9 +23,9 @@ public class Main {
           //API routes
         server.createContext("/api/auth",      new AuthHandler());
         server.createContext("/api/categories",new CategoryHandler());
-        //server.createContext("/api/products",  new ProductHandler());
-        //server.createContext("/api/stock",     new StockHandler());
-        //server.createContext("/api/dashboard", new DashboardHandler());
+        server.createContext("/api/products",  new ProductHandler());
+        server.createContext("/api/stock",     new StockHandler());
+        server.createContext("/api/dashboard", new DashboardHandler());
 
         //Static frontend (HTML/CSS/JS)
        server.createContext("/", new StaticFileHandler());
