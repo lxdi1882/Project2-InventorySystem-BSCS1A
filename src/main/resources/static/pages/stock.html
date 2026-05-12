@@ -90,12 +90,22 @@
 
             <div class="form-group">
               <label>Select Product</label>
-              <select
-                id="restock-product"
-                onchange="updateCurrentStock('restock')"
-              >
-                <option value="">Choose a product…</option>
-              </select>
+              <div class="custom-select" id="restock-dropdown">
+                <div class="cs-trigger" onclick="toggleDropdown('restock')">
+                  <span class="cs-label">Choose a product…</span>
+                  <i class="fa-solid fa-chevron-down cs-arrow"></i>
+                </div>
+                <div class="cs-panel" id="restock-panel" style="display:none">
+                  <div class="cs-search-row">
+                    <input class="cs-search" type="text" placeholder="Search…" oninput="renderDropdownList('restock')" />
+                    <select class="cs-cat" onchange="renderDropdownList('restock')">
+                      <option value="">All</option>
+                    </select>
+                  </div>
+                  <div class="cs-list" id="restock-list"></div>
+                </div>
+                <input type="hidden" id="restock-product" />
+              </div>
             </div>
             <div class="form-group">
               <label>Current Stock</label>
@@ -143,12 +153,22 @@
 
             <div class="form-group">
               <label>Select Product</label>
-              <select
-                id="deduct-product"
-                onchange="updateCurrentStock('deduct')"
-              >
-                <option value="">Choose a product…</option>
-              </select>
+              <div class="custom-select" id="deduct-dropdown">
+                <div class="cs-trigger" onclick="toggleDropdown('deduct')">
+                  <span class="cs-label">Choose a product…</span>
+                  <i class="fa-solid fa-chevron-down cs-arrow"></i>
+                </div>
+                <div class="cs-panel" id="deduct-panel" style="display:none">
+                  <div class="cs-search-row">
+                    <input class="cs-search" type="text" placeholder="Search…" oninput="renderDropdownList('deduct')" />
+                    <select class="cs-cat" onchange="renderDropdownList('deduct')">
+                      <option value="">All</option>
+                    </select>
+                  </div>
+                  <div class="cs-list" id="deduct-list"></div>
+                </div>
+                <input type="hidden" id="deduct-product" />
+              </div>
             </div>
             <div class="form-group">
               <label>Current Stock</label>
@@ -215,6 +235,93 @@
       </main>
     </div>
 
+    <style>
+      /* ── Custom searchable dropdown ── */
+      .custom-select { position: relative; }
+
+      .cs-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: var(--input-bg, var(--surface));
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--text);
+        transition: border-color .15s;
+      }
+      .cs-trigger:hover { border-color: var(--accent); }
+      .cs-trigger.open   { border-color: var(--accent); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+
+      .cs-arrow { font-size: 0.75rem; color: var(--text-dim); transition: transform .2s; }
+      .cs-trigger.open .cs-arrow { transform: rotate(180deg); }
+
+      .cs-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .cs-label.placeholder { color: var(--text-dim); }
+
+      .cs-panel {
+        position: absolute;
+        top: 100%;
+        left: 0; right: 0;
+        z-index: 200;
+        background: var(--surface);
+        border: 1px solid var(--accent);
+        border-top: none;
+        border-bottom-left-radius: var(--radius);
+        border-bottom-right-radius: var(--radius);
+        box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      }
+
+      .cs-search-row {
+        display: flex;
+        gap: 6px;
+        padding: 8px 8px 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      .cs-search {
+        flex: 1;
+        padding: 5px 8px;
+        font-size: 0.82rem;
+        background: var(--bg, #111);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text);
+        outline: none;
+      }
+      .cs-search:focus { border-color: var(--accent); }
+
+      .cs-cat {
+        font-size: 0.8rem;
+        padding: 4px 6px;
+        background: var(--bg, #111);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text);
+        max-width: 120px;
+      }
+
+      .cs-list {
+        max-height: 220px;
+        overflow-y: auto;
+        padding: 4px 0;
+      }
+      .cs-item {
+        padding: 8px 12px;
+        font-size: 0.88rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .cs-item:hover { background: var(--accent-dim, rgba(99,179,237,.12)); }
+      .cs-item.selected { color: var(--accent); font-weight: 600; }
+      .cs-item-stock { font-size: 0.78rem; color: var(--text-dim); white-space: nowrap; }
+      .cs-empty { padding: 16px 12px; color: var(--text-dim); font-size: 0.85rem; text-align: center; }
+    </style>
+
     <script src="/js/app.js"></script>
     <script>
       initShell("stock");
@@ -223,69 +330,117 @@
       async function loadProducts() {
         try {
           products = await api("/products");
-          populateSelects();
+          populateCategorySelects();
+          renderDropdownList('restock');
+          renderDropdownList('deduct');
           renderTable();
         } catch (err) {
           toast("Failed to load products: " + err.message, "error");
         }
       }
 
-      function populateSelects() {
-        const opts = products
-          .map(
-            (p) =>
-              `<option value="${p.product_id}" data-stock="${p.stock_quantity}">${p.product_name} (${p.stock_quantity} ${p.unit})</option>`,
-          )
-          .join("");
-        const prefix = '<option value="">Choose a product…</option>';
-        document.getElementById("restock-product").innerHTML = prefix + opts;
-        document.getElementById("deduct-product").innerHTML = prefix + opts;
+      /* ── Category selects inside each dropdown ── */
+      function populateCategorySelects() {
+        const cats = [...new Set(products.map(p => p.category_name))];
+        const opts = '<option value="">All</option>' +
+          cats.map(c => `<option value="${c}">${c}</option>`).join('');
+        document.querySelector('#restock-panel .cs-cat').innerHTML = opts;
+        document.querySelector('#deduct-panel  .cs-cat').innerHTML = opts;
       }
 
-      function updateCurrentStock(type) {
-        const sel = document.getElementById(`${type}-product`);
-        const opt = sel.options[sel.selectedIndex];
-        const stock = opt?.dataset.stock ?? "";
-        document.getElementById(`${type}-current`).value =
-          stock !== "" ? stock + " units" : "";
+      /* ── Render items inside a dropdown ── */
+      function renderDropdownList(type) {
+        const panel  = document.getElementById(`${type}-panel`);
+        const q      = panel.querySelector('.cs-search').value.toLowerCase();
+        const cat    = panel.querySelector('.cs-cat').value;
+        const list   = document.getElementById(`${type}-list`);
+        const selVal = document.getElementById(`${type}-product`).value;
+
+        const filtered = products.filter(p =>
+          (!q   || p.product_name.toLowerCase().includes(q)) &&
+          (!cat || p.category_name === cat)
+        );
+
+        if (!filtered.length) {
+          list.innerHTML = `<div class="cs-empty">No products found</div>`;
+          return;
+        }
+
+        list.innerHTML = filtered.map(p => `
+          <div class="cs-item ${String(p.product_id) === String(selVal) ? 'selected' : ''}"
+               onclick="selectProduct('${type}', ${p.product_id}, '${p.product_name}', ${p.stock_quantity}, '${p.unit}')">
+            <span>${p.product_name}</span>
+            <span class="cs-item-stock">${p.stock_quantity} ${p.unit}</span>
+          </div>
+        `).join('');
       }
 
+      /* ── Select a product from the list ── */
+      function selectProduct(type, id, name, stock, unit) {
+        document.getElementById(`${type}-product`).value = id;
+        const trigger = document.querySelector(`#${type}-dropdown .cs-trigger`);
+        trigger.querySelector('.cs-label').textContent = `${name} (${stock} ${unit})`;
+        trigger.querySelector('.cs-label').classList.remove('placeholder');
+        document.getElementById(`${type}-current`).value = stock + ' units';
+        closeDropdown(type);
+      }
+
+      /* ── Toggle / close dropdown ── */
+      function toggleDropdown(type) {
+        const panel   = document.getElementById(`${type}-panel`);
+        const trigger = document.querySelector(`#${type}-dropdown .cs-trigger`);
+        const isOpen  = panel.style.display !== 'none';
+        // close all first
+        ['restock','deduct'].forEach(t => {
+          document.getElementById(`${t}-panel`).style.display = 'none';
+          document.querySelector(`#${t}-dropdown .cs-trigger`).classList.remove('open');
+        });
+        if (!isOpen) {
+          panel.style.display = 'block';
+          trigger.classList.add('open');
+          panel.querySelector('.cs-search').focus();
+          renderDropdownList(type);
+        }
+      }
+
+      function closeDropdown(type) {
+        document.getElementById(`${type}-panel`).style.display = 'none';
+        document.querySelector(`#${type}-dropdown .cs-trigger`).classList.remove('open');
+      }
+
+      /* Close on outside click */
+      document.addEventListener('click', e => {
+        ['restock','deduct'].forEach(type => {
+          const dd = document.getElementById(`${type}-dropdown`);
+          if (dd && !dd.contains(e.target)) closeDropdown(type);
+        });
+      });
+
+      /* ── Table ── */
       function renderTable() {
         const tbody = document.getElementById("stock-tbody");
         if (!products.length) {
           tbody.innerHTML = `<tr><td colspan="6" class="text-dim" style="text-align:center;padding:32px">No products found.</td></tr>`;
           return;
         }
-        tbody.innerHTML = products
-          .map(
-            (p) => `
-      <tr>
-        <td><strong>${p.product_name}</strong></td>
-        <td class="text-dim">${p.category_name}</td>
-        <td class="text-dim">${p.unit}</td>
-        <td class="mono ${p.stock_quantity === 0 ? "text-danger" : p.stock_quantity <= p.low_stock_threshold ? "text-warn" : "text-accent"}">${p.stock_quantity}</td>
-        <td class="mono text-dim">${p.low_stock_threshold}</td>
-        <td>${statusBadge(p.status)}</td>
-      </tr>
-    `,
-          )
-          .join("");
+        tbody.innerHTML = products.map(p => `
+          <tr>
+            <td><strong>${p.product_name}</strong></td>
+            <td class="text-dim">${p.category_name}</td>
+            <td class="text-dim">${p.unit}</td>
+            <td class="mono ${p.stock_quantity === 0 ? 'text-danger' : p.stock_quantity <= p.low_stock_threshold ? 'text-warn' : 'text-accent'}">${p.stock_quantity}</td>
+            <td class="mono text-dim">${p.low_stock_threshold}</td>
+            <td>${statusBadge(p.status)}</td>
+          </tr>
+        `).join('');
       }
 
+      /* ── Restock ── */
       async function doRestock() {
-        const productId = parseInt(
-          document.getElementById("restock-product").value,
-        );
-        const quantity = parseInt(document.getElementById("restock-qty").value);
-        if (!productId) {
-          toast("Please select a product.", "error");
-          return;
-        }
-        if (!quantity || quantity <= 0) {
-          toast("Enter a valid quantity.", "error");
-          return;
-        }
-
+        const productId = parseInt(document.getElementById("restock-product").value);
+        const quantity  = parseInt(document.getElementById("restock-qty").value);
+        if (!productId) { toast("Please select a product.", "error"); return; }
+        if (!quantity || quantity <= 0) { toast("Enter a valid quantity.", "error"); return; }
         try {
           await api("/stock/restock", {
             method: "POST",
@@ -293,26 +448,22 @@
           });
           toast(`+${quantity} units added successfully.`);
           document.getElementById("restock-qty").value = "";
+          // reset trigger label
+          const trig = document.querySelector('#restock-dropdown .cs-trigger .cs-label');
+          trig.textContent = 'Choose a product…';
+          trig.classList.add('placeholder');
+          document.getElementById('restock-product').value = '';
+          document.getElementById('restock-current').value = '';
           loadProducts();
-        } catch (err) {
-          toast(err.message, "error");
-        }
+        } catch (err) { toast(err.message, "error"); }
       }
 
+      /* ── Deduct ── */
       async function doDeduct() {
-        const productId = parseInt(
-          document.getElementById("deduct-product").value,
-        );
-        const quantity = parseInt(document.getElementById("deduct-qty").value);
-        if (!productId) {
-          toast("Please select a product.", "error");
-          return;
-        }
-        if (!quantity || quantity <= 0) {
-          toast("Enter a valid quantity.", "error");
-          return;
-        }
-
+        const productId = parseInt(document.getElementById("deduct-product").value);
+        const quantity  = parseInt(document.getElementById("deduct-qty").value);
+        if (!productId) { toast("Please select a product.", "error"); return; }
+        if (!quantity || quantity <= 0) { toast("Enter a valid quantity.", "error"); return; }
         try {
           await api("/stock/deduct", {
             method: "POST",
@@ -320,10 +471,13 @@
           });
           toast(`−${quantity} units deducted successfully.`, "warn");
           document.getElementById("deduct-qty").value = "";
+          const trig = document.querySelector('#deduct-dropdown .cs-trigger .cs-label');
+          trig.textContent = 'Choose a product…';
+          trig.classList.add('placeholder');
+          document.getElementById('deduct-product').value = '';
+          document.getElementById('deduct-current').value = '';
           loadProducts();
-        } catch (err) {
-          toast(err.message, "error");
-        }
+        } catch (err) { toast(err.message, "error"); }
       }
 
       loadProducts();
