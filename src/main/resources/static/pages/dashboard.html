@@ -56,7 +56,7 @@
       </nav>
 
       <!-- Main -->
-      <main class="main-content">
+     <main class="main-content">
         <div class="page-header">
           <div class="welcome"> <h2 id="welcome-msg">Welcome back!</h2></div>
           <button class="btn btn-ghost" onclick="loadStats()">
@@ -106,8 +106,8 @@
             </div>
         </div>
         
-      </main>
-
+     </main>
+    </div>
       
 <script src="/js/app.js"></script>
 <script>
@@ -129,7 +129,7 @@
 
       // Turn the low-stock card danger if any items are critical
       const card = document.getElementById('card-lowstock');
-      card.className = 'stat-card ' + (s.low_stock_count > 0 ? 'danger' : '');
+      card.className = 'stat-card warn' + (s.low_stock_count > 0 ? ' danger' : '');
     } catch (err) {
       toast('Could not load stats: ' + err.message, 'error');
     }
@@ -138,6 +138,6 @@
   loadStats();
 </script>
       
-    </div>
+    
   </body>
 </html>

@@ -103,7 +103,7 @@ h2 {
 /*  Sidebar nav  */
 .topbar h1 {
   font-size: 2.2rem;
-  font-weight: 100px;
+  font-weight: 100 px;
 }
 
 .cat {
@@ -120,8 +120,11 @@ h2 {
 }
 
 .sidebar {
-  grid-row: 1 / -1;
-  grid-column: 1 / 2;
+  position: fixed;      
+  top: 0;                
+  left: 0;             
+  height: 100vh;   
+  width: 260px; 
   background: var(--surface);
   padding: 24px 0;
   display: flex;
@@ -166,7 +169,7 @@ h2 {
 }
 
 .sidebar-spacer {
-  flex: 1;
+    height: 200px;
 }
 
 .sidebar .logout-btn {
@@ -196,8 +199,8 @@ h2 {
 
 /*  Main content  */
 .main-content {
-  grid-row: 2 / 3;
-  grid-column: 2 / 3;
+ grid-row: 2 / 3;
+ grid-column: 2 / 3;
   padding: 32px 36px;
   overflow-y: auto;
 }
